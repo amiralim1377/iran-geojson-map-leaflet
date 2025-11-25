@@ -1,46 +1,32 @@
 "use client";
 
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 export default function IranMapClient() {
   const [geoData, setGeoData] = useState(null);
   const router = useRouter();
 
+  // -----------------------------
+  // Define custom marker icon
+  // -----------------------------
+  const customIcon = new L.Icon({
+    iconUrl: "/pink-location.svg",
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
+
+  // -----------------------------
+  // Load GeoJSON file
+  // -----------------------------
   useEffect(() => {
     fetch("/marakez_shar_geojson.geojson")
       .then((res) => res.json())
       .then((data) => setGeoData(data));
   }, []);
-
-  const onEachFeature = (feature, layer) => {
-    const name = feature.properties?.name || "Unknown";
-
-    layer.bindTooltip(name);
-
-    layer.on("click", () => {
-      // مرحله دوم: ارسال نام شهر به URL
-      router.push(`?city=${encodeURIComponent(name)}`);
-    });
-
-    if (layer.setStyle) {
-      layer.on("mouseover", () => {
-        layer.setStyle({
-          weight: 2,
-          fillOpacity: 0.8,
-        });
-      });
-
-      layer.on("mouseout", () => {
-        layer.setStyle({
-          weight: 1,
-          fillOpacity: 0.6,
-        });
-      });
-    }
-  };
 
   return (
     <div className="w-full h-[600px]">
@@ -51,28 +37,28 @@ export default function IranMapClient() {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {geoData && (
-          <GeoJSON
-            data={geoData}
-            onEachFeature={onEachFeature}
-            style={{
-              color: "#333",
-              weight: 1,
-              fillColor: "#cce5ff",
-              fillOpacity: 0.6,
-            }}
-            pointToLayer={(feature, latlng) => {
-              return L.circleMarker(latlng, {
-                radius: 6,
-                fillColor: "#3388ff",
-                color: "#000",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8,
-              });
-            }}
-          />
-        )}
+        {/* Create markers for cities */}
+        {geoData &&
+          geoData.features
+            .filter((f) => f.geometry.type === "Point")
+            .map((city, idx) => (
+              <Marker
+                key={idx}
+                position={[
+                  city.geometry.coordinates[1],
+                  city.geometry.coordinates[0],
+                ]}
+                icon={customIcon}
+                eventHandlers={{
+                  click: () =>
+                    router.push(
+                      `?city=${encodeURIComponent(city.properties.name)}`
+                    ),
+                }}
+              >
+                <Popup>{city.properties.name}</Popup>
+              </Marker>
+            ))}
       </MapContainer>
     </div>
   );
