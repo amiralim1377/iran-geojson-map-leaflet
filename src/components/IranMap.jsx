@@ -34,6 +34,11 @@ export default function IranMapClient() {
         center={[32, 53]}
         zoom={5}
         style={{ height: "100%", width: "100%" }}
+        maxBounds={[
+          [24, 44], // جنوب غربی ایران (lat, lng)
+          [40, 64], // شمال شرقی ایران (lat, lng)
+        ]}
+        maxBoundsViscosity={1.0}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

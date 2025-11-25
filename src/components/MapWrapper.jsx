@@ -8,7 +8,7 @@ const IranMap = dynamic(() => import("../components/IranMap.jsx"), {
 
 function MapWrapper() {
   return (
-    <div>
+    <div className="">
       <IranMap />
     </div>
   );
