@@ -1,9 +1,9 @@
-import IranMap from "@/components/IranMap";
+import MapWrapper from "@/components/MapWrapper";
 
 export default function Home() {
   return (
     <div>
-      <IranMap />
+      <MapWrapper />
     </div>
   );
 }
